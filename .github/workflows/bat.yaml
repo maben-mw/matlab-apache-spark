@@ -20,12 +20,10 @@ jobs:
       - name: Set up MATLAB
         uses: matlab-actions/setup-matlab@v1
       - name: Build using MATLAB
-        working-directory: Software/MATLAB
         uses: matlab-actions/run-command@v1
         with:
-          command: "startup; C = matlab.sparkutils.Config.getInMemoryConfig(); C.CurrentVersion = \"${{ matrix.spark-version }}\"; C.saveConfig; buildMatlabSparkUtility(); generateJavapathForSpark(); copyfile('javaclasspath.txt', prefdir);"
+          command: "addpath(fullfile(pwd,'Software','MATLAB')); savepath; startup; C = matlab.sparkutils.Config.getInMemoryConfig(); C.CurrentVersion = \"${{ matrix.spark-version }}\"; C.saveConfig; buildMatlabSparkUtility(); generateJavapathForSpark(); copyfile('Software/MATLAB/javaclasspath.txt', prefdir);"
       - name: Test using MATLAB
-        working-directory: Software/MATLAB
         uses: matlab-actions/run-tests@v1
         with:
           source-folder: Modules/matlab-spark-api/Software/MATLAB/test/unit
