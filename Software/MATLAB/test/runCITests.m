@@ -11,10 +11,10 @@ suite = matlab.unittest.TestSuite.fromFolder('../../../Modules/matlab-spark-api/
 suite = suite.selectIf(~HasName(StartsWithSubstring('testSparkBuilder')));
 
 % Configure for JUnit XML reporting
-[~,~] = mkdir('test-results');
+[~,~] = mkdir('../../../test-results');
 
 runner = TestRunner.withTextOutput('OutputDetail', Verbosity.Detailed);
-runner.addPlugin(XMLPlugin.producingJUnitFormat('test-results/results.xml'));
+runner.addPlugin(XMLPlugin.producingJUnitFormat('../../../test-results/results.xml'));
 
 % Run the suite
 results = runner.run(suite);
