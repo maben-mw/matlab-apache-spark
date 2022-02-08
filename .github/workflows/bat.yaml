@@ -35,6 +35,6 @@ jobs:
         if: success() || failure()
         uses: dorny/test-reporter@v1.5.0
         with:
-          name: MATLAB Unit Test Results
+          name: MATLAB Unit Test Results ${{ matrix.spark-version }}
           path: test-results/*.xml 
           reporter: java-junit
