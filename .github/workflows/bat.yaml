@@ -20,18 +20,20 @@ jobs:
       - name: Set up MATLAB
         uses: matlab-actions/setup-matlab@v1
       - name: Build using MATLAB
+        working-directory: Software/MATLAB
         uses: matlab-actions/run-command@v1
         with:
-          command: "run('Software/MATLAB/startup.m'); C = matlab.sparkutils.Config.getInMemoryConfig(); C.CurrentVersion = \"${{ matrix.spark-version }}\"; C.saveConfig; buildMatlabSparkUtility(); generateJavapathForSpark(); copyfile('Software/MATLAB/javaclasspath.txt', prefdir);"
+          command: "startup; C = matlab.sparkutils.Config.getInMemoryConfig(); C.CurrentVersion = \"${{ matrix.spark-version }}\"; C.saveConfig; buildMatlabSparkUtility(); generateJavapathForSpark(); copyfile('javaclasspath.txt', prefdir);"
       - name: Test using MATLAB
+        working-directory: Software/MATLAB
         uses: matlab-actions/run-tests@v1
         with:
           source-folder: Modules/matlab-spark-api/Software/MATLAB/test/unit
           test-results-junit: test-results/results.xml
-      - name: Test Report
-        if: success() || failure()
-        uses: dorny/test-reporter@v1
-        with:
-          name: MATLAB Unit Test Results
-          path: test-results/*.xml 
-          reporter: jest-junit
+#      - name: Test Report
+#        if: success() || failure()
+#        uses: dorny/test-reporter@v1
+#        with:
+#          name: MATLAB Unit Test Results
+#          path: test-results/*.xml 
+#          reporter: java-junit
