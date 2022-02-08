@@ -24,6 +24,14 @@ jobs:
         with:
           command: "run('Software/MATLAB/startup.m'); C = matlab.sparkutils.Config.getInMemoryConfig(); C.CurrentVersion = \"${{ matrix.spark-version }}\"; C.saveConfig; buildMatlabSparkUtility(); generateJavapathForSpark(); copyfile('Software/MATLAB/javaclasspath.txt', prefdir);"
       - name: Test using MATLAB
-        uses: matlab-actions/run-command@v1
+        uses: matlab-actions/run-tests@v1
         with:
-          command: "run('Software/MATLAB/startup.m'); spark = getDefaultSparkSession('my-spark-app')"
+          source-folder: Modules/matlab-spark-api/Software/MATLAB/test/unit
+          test-results-junit: test-results/results.xml
+      - name: Test Report
+        if: success() || failure()
+        uses: dorny/test-reporter@v1
+        with:
+          name: MATLAB Unit Test Results
+          path: test-results/*.xml 
+          reporter: jest-junit
