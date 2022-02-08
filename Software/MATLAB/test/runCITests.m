@@ -5,8 +5,7 @@ import matlab.unittest.selectors.HasName;
 import matlab.unittest.constraints.StartsWithSubstring;
   
 % Generate a suite with all tests
-suite = testsuite('Modules/matlab-spark-api/Software/MATLAB/test/unit',...
-    'IncludeSubfolders', true);
+suite = matlab.unittest.TestSuite.fromFolder('../../../Modules/matlab-spark-api/Software/MATLAB/test/unit');
 
 % Filter out tests which require a MATLAB Compiler SDK license
 suite = suite.selectIf(~HasName(StartsWithSubstring('testSparkBuilder')));
