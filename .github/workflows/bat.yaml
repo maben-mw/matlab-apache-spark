@@ -22,7 +22,7 @@ jobs:
       - name: Build using MATLAB
         uses: matlab-actions/run-command@v1
         with:
-          command: "run('Software/MATLAB/startup.m'); C = matlab.sparkutils.Config.getInMemoryConfig(); C.CurrentVersion = \"${{ matrix.spark-version }}\"; C.saveConfig; buildMatlabSparkUtility(); generateJavapathForSpark(); copyfile('javaclasspath.txt', prefdir);"
+          command: "run('Software/MATLAB/startup.m'); C = matlab.sparkutils.Config.getInMemoryConfig(); C.CurrentVersion = \"${{ matrix.spark-version }}\"; C.saveConfig; buildMatlabSparkUtility(); generateJavapathForSpark(); copyfile('Software/MATLAB/javaclasspath.txt', prefdir);"
       - name: Test using MATLAB
         uses: matlab-actions/run-command@v1
         with:
