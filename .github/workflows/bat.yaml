@@ -25,11 +25,12 @@ jobs:
         with:
           command: "run('Software/MATLAB/startup.m'); C = matlab.sparkutils.Config.getInMemoryConfig(); C.CurrentVersion = \"${{ matrix.spark-version }}\"; C.saveConfig; buildMatlabSparkUtility(); generateJavapathForSpark(); copyfile('Software/MATLAB/javaclasspath.txt', '.');"
       - name: Test using MATLAB
+        id: matlabtest
         uses: matlab-actions/run-command@v1
         with:
           command: "run('Software/MATLAB/startup.m'); run('Software/MATLAB/test/runCITests.m')"
       - name: Test Report
-        if: success() || failure()
+        if: success() || steps.matlabtest.outcome == 'failure'
         uses: dorny/test-reporter@v1.5.0
         with:
           name: MATLAB Unit Test Results ${{ matrix.spark-version }}
