@@ -1,11 +1,11 @@
 name: Build And Test
-on: [push, workflow_dispatch]
+on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        spark-version: ["3.0.1","3.1.2"]
+        spark-version: ["2.2.0", "2.4.5", "2.4.7", "3.0.1", "3.0.1-hadoop3.2", "3.1.2"]
     name: Spark Version ${{ matrix.spark-version }}        
     steps:
       - name: Check out repository
@@ -27,10 +27,6 @@ jobs:
         uses: matlab-actions/run-command@v1
         with:
           command: "run('Software/MATLAB/startup.m'); run('Software/MATLAB/test/runCITests.m')"
-#        uses: matlab-actions/run-tests@v1
-#        with:
-#          source-folder: Modules/matlab-spark-api/Software/MATLAB/test/unit
-#          test-results-junit: test-results/results.xml
       - name: Test Report
         if: success() || failure()
         uses: dorny/test-reporter@v1.5.0
