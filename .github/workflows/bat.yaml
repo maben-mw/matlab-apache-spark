@@ -19,20 +19,21 @@ jobs:
           distribution: 'adopt'
       - name: Set up MATLAB
         uses: matlab-actions/setup-matlab@v1
-      - name: Create startup.m in root
-        run: echo "run('Software/MATLAB/startup.m')" > startup.m
       - name: Build using MATLAB
         uses: matlab-actions/run-command@v1
         with:
-          command: "C = matlab.sparkutils.Config.getInMemoryConfig(); C.CurrentVersion = \"${{ matrix.spark-version }}\"; C.saveConfig; buildMatlabSparkUtility(); generateJavapathForSpark(); copyfile('Software/MATLAB/javaclasspath.txt', prefdir);"
+          command: "run('Software/MATLAB/startup.m'); C = matlab.sparkutils.Config.getInMemoryConfig(); C.CurrentVersion = \"${{ matrix.spark-version }}\"; C.saveConfig; buildMatlabSparkUtility(); generateJavapathForSpark(); copyfile('Software/MATLAB/javaclasspath.txt', '.');"
       - name: Test using MATLAB
-        uses: matlab-actions/run-tests@v1
+        uses: matlab-actions/run-command@v1
         with:
-          source-folder: Modules/matlab-spark-api/Software/MATLAB/test/unit
-          test-results-junit: test-results/results.xml
+          command: "run('Software/MATLAB/startup.m'); run('Software/MATLAB/test/runCITests.m')"
+#        uses: matlab-actions/run-tests@v1
+#        with:
+#          source-folder: Modules/matlab-spark-api/Software/MATLAB/test/unit
+#          test-results-junit: test-results/results.xml
 #      - name: Test Report
 #        if: success() || failure()
-#        uses: dorny/test-reporter@v1
+#        uses: dorny/test-reporter@v1.5.0
 #        with:
 #          name: MATLAB Unit Test Results
 #          path: test-results/*.xml 
