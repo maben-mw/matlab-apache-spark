@@ -71,14 +71,16 @@ jobs:
     runs-on: ubuntu-latest
     name: Test Report
     steps:          
+      - name: Check out repository
+        uses: actions/checkout@v2
+        with:
+          submodules: true   
       - name: Gather results
         uses: actions/download-artifact@v2
         with:
           name: test-results
           path: test-results
       - name: Create report
-        uses: dorny/test-reporter@v1.5.0
+        uses: mikepenz/action-junit-report@v2    
         with:
-          name: MATLAB Test Results
-          path: test-results/*.xml 
-          reporter: java-junit
+          report_paths: test-results/*.xml 
