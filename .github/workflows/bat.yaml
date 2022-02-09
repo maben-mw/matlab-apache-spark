@@ -25,7 +25,7 @@ jobs:
       - name: Build using Python
         working-directory: Modules/matlab-spark-api/Software/Java/SparkUtility
         run: python build_jar.py -r ${{matrix.spark-version}}
-      - name: Store Artifact
+      - name: Upload Build Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: jars-${{ matrix.spark-version }}
@@ -40,15 +40,19 @@ jobs:
         matlab-release: ["R2021a","R2021b"]
     name: Test Spark ${{ matrix.spark-version }} using MATLAB ${{matrix.matlab-release}}
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+        with:
+          submodules: true    
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: jars-${{ matrix.spark-version }}
+          path: Modules/matlab-spark-api/Software/MATLAB/lib/jar          
       - name: Set up MATLAB
         uses: matlab-actions/setup-matlab@v1
         with:
           release: ${{ matrix.matlab-release }}
-      - name: Get JAR from build
-        uses: actions/download-artifact@v2
-        with:
-          name: jars-${{ matrix.spark-version }}
-          path: Modules/matlab-spark-api/Software/MATLAB/lib/jar
       - name: Configure class path
         uses: matlab-actions/run-command@v1
         with:
