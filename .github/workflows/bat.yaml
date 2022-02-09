@@ -1,14 +1,13 @@
 name: Build And Test
 on: [push]
-jobs:
+jobs-${{matrix.spark-version}}:
   build:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        spark-version: ["2.2.0", "2.4.5", "2.4.7", "3.0.1", "3.0.1-hadoop3.2", "3.1.2"]
-        matlab-release: ["R2021a","R2021b"]
-    name: MATLAB ${{ matrix.matlab-release }} Spark ${{ matrix.spark-version }}        
+        spark-version: ["2.4.7", "3.1.2"]
+    name: Build Spark ${{ matrix.spark-version }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
@@ -19,23 +18,11 @@ jobs:
         with:
           java-version: '8'
           distribution: 'adopt'
-      - name: Set up MATLAB
-        uses: matlab-actions/setup-matlab@v1
+      - name: Setup Python
+      - uses: actions/setup-python@v2
         with:
-          release: ${{ matrix.matlab-release }}
-      - name: Build using MATLAB
-        uses: matlab-actions/run-command@v1
-        with:
-          command: "run('Software/MATLAB/startup.m'); C = matlab.sparkutils.Config.getInMemoryConfig(); C.CurrentVersion = \"${{ matrix.spark-version }}\"; C.saveConfig; buildMatlabSparkUtility(); generateJavapathForSpark(); copyfile('Software/MATLAB/javaclasspath.txt', '.');"
-      - name: Test using MATLAB
-        id: matlabtest
-        uses: matlab-actions/run-command@v1
-        with:
-          command: "run('Software/MATLAB/startup.m'); run('Software/MATLAB/test/runCITests.m')"
-      - name: Test Report
-        if: success() || steps.matlabtest.outcome == 'failure'
-        uses: dorny/test-reporter@v1.5.0
-        with:
-          name: MATLAB ${{ matrix.matlab-release }} Spark ${{ matrix.spark-version }} Unit Test Results
-          path: test-results/*.xml 
-          reporter: java-junit
+          python-version: '3.8'
+      - name: Build using Python
+        working-directory: Modules/matlab-spark-api/Software/Java/SparkUtility
+        run: python build_jar.py -r ${{matrix.spark-version}}
+          
