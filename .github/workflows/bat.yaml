@@ -81,6 +81,8 @@ jobs:
           name: test-results
           path: test-results
       - name: Create report
-        uses: mikepenz/action-junit-report@v2    
+        uses: dorny/test-reporter@v1.5.0
         with:
-          report_paths: test-results/*.xml 
+          name: Final Test Report
+          path: test-results/*.xml 
+          reporter: java-junit
