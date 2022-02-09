@@ -38,7 +38,7 @@ jobs:
       matrix:
         spark-version: ["2.4.7", "3.1.2"]
         matlab-release: ["R2021a","R2021b"]
-    name: Test Spark ${{ matrix.spark-version }} using MATLAB ${{matrix-matlab-release}}
+    name: Test Spark ${{ matrix.spark-version }} using MATLAB ${{matrix.matlab-release}}
     steps:
       - name: Set up MATLAB
         uses: matlab-actions/setup-matlab@v1
