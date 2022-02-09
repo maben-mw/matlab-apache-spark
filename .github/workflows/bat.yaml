@@ -25,4 +25,55 @@ jobs:
       - name: Build using Python
         working-directory: Modules/matlab-spark-api/Software/Java/SparkUtility
         run: python build_jar.py -r ${{matrix.spark-version}}
-          
+      - name: Store Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: jars-${{ matrix.spark-version }}
+          path: Modules/matlab-spark-api/Software/MATLAB/lib/jar/*.jar
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        spark-version: ["2.4.7", "3.1.2"]
+        matlab-release: ["R2021a","R2021b"]
+    name: Test Spark ${{ matrix.spark-version }} using MATLAB ${{matrix-matlab-release}}
+    steps:
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v1
+        with:
+          release: ${{ matrix.matlab-release }}
+      - name: Get JAR from build
+        uses: actions/download-artifact@v2
+        with:
+          name: jars-${{ matrix.spark-version }}
+          path: Modules/matlab-spark-api/Software/MATLAB/lib/jar
+      - name: Configure class path
+        uses: matlab-actions/run-command@v1
+        with:
+          command: "run('Software/MATLAB/startup.m'); C = matlab.sparkutils.Config.getInMemoryConfig(); C.CurrentVersion = \"${{ matrix.spark-version }}\"; C.saveConfig; generateJavapathForSpark(); copyfile('Software/MATLAB/javaclasspath.txt', '.');"
+      - name: Test using MATLAB
+        uses: matlab-actions/run-command@v1
+        with:
+          command: "run('Software/MATLAB/startup.m'); cd 'Software/MATLAB/test'; runCITests('${{matrix.spark-version}}-${{matrix.matlab-release}}')"        
+      - name: Store Test Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: test-results/*.xml
+  report:
+    needs: test
+    runs-on: ubuntu-latest
+    name: Test Report
+    steps:          
+      - name: Gather results
+        uses: actions/download-artifact@v2
+        with:
+          name: test-results
+          path: test-results
+      - name: Create report
+        uses: dorny/test-reporter@v1.5.0
+        with:
+          path: test-results/*.xml 
+          reporter: java-junit
