@@ -58,6 +58,7 @@ jobs:
       
       # Store test results as artifacts such that they can be used in the report job
       - name: Store Test Results as Artifacts
+        if: ${{ success() || failure() }}
         uses: actions/upload-artifact@v2
         with:
           name: test-results
