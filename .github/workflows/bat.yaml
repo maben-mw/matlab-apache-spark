@@ -20,31 +20,34 @@ jobs:
         with:
           submodules: true
       
+      # Check whether Java actually changed
+      - name: Check cache
+        id: check-cache
+        uses: actions/cache@v2
+        with:
+          key: ${{matrix.spark-version}}-${{hashFiles('Modules/matlab-spark-api/Software/Java')}}
+          path: Modules/matlab-spark-api/Software/MATLAB/lib/jar
+
       # Configure build environment with JDK 8 and Python 3.8
       - name: Set up JDK 8
+        if: steps.check-cache.outputs.cache-hit != 'true'
         uses: actions/setup-java@v2
         with:
           java-version: '8'
           distribution: 'adopt'
           cache: maven
       - name: Setup Python
+        if: steps.check-cache.outputs.cache-hit != 'true'
         uses: actions/setup-python@v2
         with:
           python-version: '3.8'
       
       # Build the JAR-files using the Python helper script
       - name: Build using Python
+        if: steps.check-cache.outputs.cache-hit != 'true'
         working-directory: Modules/matlab-spark-api/Software/Java/SparkUtility
         run: python build_jar.py -r ${{matrix.spark-version}}
-      
-      # Store JAR-files as artifacts such that they can be used in the test job
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: jars-${{ matrix.spark-version }}
-          path: Modules/matlab-spark-api/Software/MATLAB/lib/jar/*.jar
-          retention-days: 1
-  
+        
   # Test the produced JAR-files using MATLAB
   test:
     needs: build
@@ -65,13 +68,13 @@ jobs:
         with:
           submodules: true    
 
-      # Obtain the relevant JAR-file from the build job
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v2
+      # Get JAR through cache
+      - name: Get cache
+        uses: actions/cache@v2
         with:
-          name: jars-${{ matrix.spark-version }}
-          path: Modules/matlab-spark-api/Software/MATLAB/lib/jar          
-      
+          key: ${{matrix.spark-version}}-${{hashFiles('Modules/matlab-spark-api/Software/Java')}}
+          path: Modules/matlab-spark-api/Software/MATLAB/lib/jar
+
       # Make MATLAB available
       - name: Set up MATLAB
         uses: matlab-actions/setup-matlab@v1
